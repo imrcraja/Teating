@@ -1,0 +1,833 @@
+WORLDGATE — MASTER CONTINUATION HANDOFF
+============================================================
+
+PURPOSE
+-------
+This file is the complete continuation brief for finishing the WorldGate project.
+Give this entire file to the next coding agent and tell it:
+
+"Read this file completely. Do not ask me to provide screenshots, assets, project plans, or repeated confirmation. Inspect the repositories yourself, continue from the current code, finish the MOD + BACKEND first, verify builds/JARs/CI, then finish the WEBSITE. Preserve existing functionality. Work directly in the repositories."
+
+IMPORTANT SECURITY RULE
+-----------------------
+DO NOT put passwords, Firebase private keys, Discord client secrets, GitHub tokens,
+Render tokens, API keys, service-account JSON, or any other secret value into this
+prompt or source code.
+
+Use credentials already available through the agent's connected GitHub/Render/secret
+environment. If a credential is required but unavailable, identify the exact secret
+NAME that must exist (for example DISCORD_CLIENT_SECRET), but never print its value.
+Never commit secrets.
+
+============================================================
+1. REPOSITORIES
+============================================================
+
+CLIENT / MAIN MOD
+https://github.com/imrcraja/WorldGate
+
+BACKEND
+https://github.com/imrcraja/WorldGate-backend
+
+ELITE
+https://github.com/imrcraja/WorldGate-Elite
+
+OLD/REFERENCE MOD REPO (only inspect if useful; do not replace the current project)
+https://github.com/imrcraja/WorldGate-Mod
+
+CONTINUATION / HANDOFF REPO
+https://github.com/imrcraja/Teating
+
+The user's GitHub account is imrcraja.
+
+Main current client branch used during development:
+worldgate-essential-style-ui
+
+Backend development branch:
+worldgate-elite-coin-store
+
+IMPORTANT:
+The repository names are real and case-sensitive as shown above. Do not create a
+replacement project. Continue the existing WorldGate codebase.
+
+============================================================
+2. ABSOLUTE PROJECT RULES
+============================================================
+
+1. DO NOT remove existing features.
+2. DO NOT disable existing features just to make a build pass.
+3. DO NOT delete working UI.
+4. DO NOT replace WorldGate with a simplified demo.
+5. DO NOT break Minecraft 1.21.1 support.
+6. DO NOT break Minecraft 26.1.2 support.
+7. Preserve existing APIs/data compatibility wherever possible.
+8. Preserve existing Firebase/backend data structures unless migration is necessary.
+9. Do not fake functionality with placeholder UI when real implementation is required.
+10. Loading states should be animated, not a static "Loading..." message.
+11. Do not ask for screenshots/assets if the implementation can be completed from the
+    code and this specification.
+12. Do not repeatedly ask for permission for every small change. Inspect, implement,
+    build/test, fix, and continue.
+13. Prefer cohesive commits rather than dozens of tiny commits.
+14. Before saying "done", inspect the actual diff and verify the build/CI/JAR.
+15. If a hard external dependency truly cannot be implemented without a binary/SDK,
+    complete everything else and clearly document the exact dependency instead of
+    faking it.
+16. Do not expose or commit secrets.
+17. Do not change unrelated project behavior.
+
+============================================================
+3. CURRENT STATE — CONTINUE FROM HERE
+============================================================
+
+The project already contains substantial WorldGate functionality.
+
+Recent client commits include:
+
+3e49a7e95781609dcbaa207ff8e518e1c3b9d3ec
+feat: finish dynamic localization across account and elite UI
+
+6d073c7c628953f0bc66bc09c4ee7c9ba6456cc1
+feat: add animated loading states and player shop preview
+
+793e9e7878a08ef3956b2f12786beab6426de936
+feat: support internet-free LAN room discovery
+
+3bb9c220f12395defeaf89397205d84d9684e40c
+feat: add realtime chat typing presence and animations
+
+defe725be7e5e80a251a73edd764935156c1dbad
+fix: repair UI localization and loading syntax
+
+e79e9aa6c2e9d106eea2b726436c48d18d2b22c4
+fix: repair remaining wardrobe ternary syntax
+
+f530a844b52dccd9385b1752ffa9b0226f667369
+feat: reorganize WorldGate dashboard with responsive dark UI
+
+b3ca74847ae291580e99c687c41e766d1fea6dcf
+fix: correct public ID error response syntax
+
+bf9b662a09efc8c02f4134e08dfa90d62824d24
+feat: add public ID localization
+
+01d65174e441c8cd8570dda0fee31e3d541a7836
+feat: localize dashboard navigation labels
+
+a66ca473194ff2ae8c0fe492d0df98819d5d556c
+fix: use localized dashboard navigation labels
+
+Do NOT assume these commits are all currently at the branch tip. Inspect the actual
+branch HEAD before editing.
+
+============================================================
+4. FEATURES THAT ALREADY EXIST — PRESERVE AND AUDIT
+============================================================
+
+A. ELITE COIN / STORE
+---------------------
+- Elite Coin economy
+- Store
+- Wardrobe
+- Cosmetics
+- Emotes
+- Ownership/equip state
+- Player preview
+- Claim Center
+- Daily claim
+- Activity
+- Gifting
+- Mailbox
+- History
+
+Do not remove or simplify these systems.
+
+B. ACCOUNT
+----------
+- Persistent account login
+- Multi-device session handling
+- One active online lease/session model
+- Heartbeat
+- Revoke session
+- Account Security screen
+- Discord OAuth linking
+- Public ID
+
+C. SOCIAL
+---------
+- Friends
+- Friend requests
+- Friend/invite flow
+- Public ID based lookup
+- Lobby
+- Chat
+- Reply
+- Delete
+- Link/open handling
+- Realtime chat/history
+- Typing indicator with animation
+- Realtime room/friend-related events
+
+D. ROOMS / MULTIPLAYER
+----------------------
+- Room creation
+- Numeric room IDs
+- Host/invite flow
+- Incoming invites
+- Room members
+- Heartbeats
+- Player join/leave
+- Actual relay multiplayer
+- HostBridge
+- RelayBridge
+- TCP Minecraft traffic over WebSocket relay
+- Handshake
+- RTT measurement
+- LAN fallback
+- Internet-free LAN discovery
+
+Room ID requirements:
+- Numeric
+- Normally 5–8 digits initially, extending up to 10 digits as needed
+- Stable while host remains in the world
+- Closing the WorldGate menu must NOT destroy the room
+- Actual world/network disconnect ends the host room
+- Reopening the UI should show the same active room
+
+E. OP / PERMISSIONS
+-------------------
+- Host permission manager
+- Persistent host-granted OP UUIDs
+- Local persistence
+- Sync groundwork
+
+This must be audited for actual authoritative enforcement. Do not claim full
+remote security merely because a local UI exists.
+
+F. SKINS
+--------
+- Current skin URL sync to profile
+- Remote skin cache
+- PlayerInfo integration
+- Cracked skin support where a usable skin URL is exposed by the launcher
+
+Do not claim universal cracked-skin extraction if the launcher does not expose the
+texture URL.
+
+G. LOCALIZATION
+---------------
+Dynamic localization has been added to many screens:
+- Settings
+- Account Security
+- Discord
+- Elite
+- Coin Store
+- Wardrobe
+- Dashboard navigation
+- Public ID
+
+Audit ALL GUI screens for hard-coded user-visible text and move remaining text into
+locale files.
+
+H. LOADING
+----------
+Loading indicators should be animated.
+
+Audit all screens for:
+- static "Loading..."
+- frozen UI while async work happens
+- missing error state
+- missing retry state
+
+============================================================
+5. UI TARGET — THIS IS IMPORTANT
+============================================================
+
+The previous dashboard was too close to vanilla Minecraft buttons.
+
+The target visual language is inspired by the supplied Essential-style screenshots,
+BUT DO NOT copy Essential branding, name, logo, links, proprietary assets, or identity.
+
+WorldGate UI should be:
+
+- modern
+- dark
+- translucent/depth-based
+- polished
+- compact
+- rounded/soft panels
+- clear hierarchy
+- game world visible behind UI where appropriate
+- subtle dim/blur/depth
+- icon + text navigation
+- consistent spacing
+- responsive
+- no overlap
+- no off-screen controls
+- no ugly default Minecraft grey button grid
+- WorldGate branding only
+- smooth hover/press/transition animations
+
+The WorldGate dashboard should feel like a modern in-game launcher/social overlay,
+not a 1940s/basic Minecraft settings menu.
+
+Keep all existing functions:
+Profile
+Friends
+Chat
+Lobby
+Claim Center
+Settings
+Elite Store
+Cosmetics
+Emotes
+Account Security
+Discord
+Report
+Room join/create
+etc.
+
+Do not remove functionality just to improve appearance.
+
+============================================================
+6. TITLE SCREEN
+============================================================
+
+Finish the Minecraft Title Screen integration.
+
+Goal:
+- WorldGate visual language should be present without destroying vanilla functionality.
+- Existing vanilla buttons/features must remain usable.
+- WorldGate controls should look custom and polished.
+- No Essential branding.
+- Responsive across supported resolutions.
+- Avoid overlapping the logo, panorama, or vanilla controls.
+- Use animated transitions where practical.
+
+If a custom WorldGate button renderer/widget is needed, implement it rather than
+using plain vanilla grey Button styling everywhere.
+
+============================================================
+7. ESC / PAUSE SCREEN
+============================================================
+
+Finish the PauseScreen integration.
+
+Current partial work added:
+- WorldGate button
+- player preview area
+
+But this must be polished.
+
+Requirements:
+- Essential-inspired modern composition
+- WorldGate branding only
+- 3D player preview integrated cleanly
+- no overlap
+- responsive for narrow/wide screens
+- custom WorldGate visual styling
+- preserve all vanilla pause functionality
+- do not place controls outside screen bounds
+- no default ugly grey button treatment for WorldGate controls
+
+============================================================
+8. RESPONSIVE UI
+============================================================
+
+Every important screen must work at:
+- normal desktop Minecraft resolution
+- small window
+- wide monitor
+- different GUI scales
+
+Do not assume fixed 1920x1080.
+
+Audit:
+- WorldGateScreen
+- FriendsScreen
+- ChatScreen
+- LobbyScreen
+- ClaimCenterScreen
+- SettingsScreen
+- EliteProfileScreen
+- Elite Store
+- Wardrobe
+- Emotes
+- Account Security
+- Discord
+- PauseScreen
+- TitleScreen
+- any other custom Screen
+
+============================================================
+9. PUBLIC ID
+============================================================
+
+Public-facing Friend Code has been replaced by numeric Public ID.
+
+Requirements:
+- stable numeric ID
+- public-facing only
+- internal Firebase UID remains internal
+- Friend requests resolve Public ID -> internal UID
+- gifting resolves Public ID -> internal UID
+- UI must not expose internal Firebase UID
+- validation and localized error states must be clean
+
+Do not accidentally regress this back to public UID/Friend Code.
+
+============================================================
+10. REALTIME ONLINE/OFFLINE PRESENCE
+============================================================
+
+Finish/audit realtime presence.
+
+Desired behavior:
+- friends can see online/offline status
+- status updates without requiring manual refresh
+- session lease/heartbeat is the authoritative source
+- disconnect/timeout should eventually become offline
+- UI should have clear but subtle status indicators
+- local cache can be a mirror but not the authority
+- avoid excessive Firebase listeners
+- clean up listeners on screen close/logout
+
+Do not implement a fake timer that merely says everyone is online.
+
+============================================================
+11. CHAT
+============================================================
+
+Preserve:
+- realtime messages
+- history
+- reply
+- delete
+- links/open action
+- deleted message UI
+- display names
+- typing indicator
+
+Improve if needed:
+- typing TTL/cleanup
+- listener lifecycle
+- reconnect behavior
+- error state
+- loading animation
+- unread/read state if already supported
+- avoid stale typing state
+
+Do not remove reply/delete functionality.
+
+============================================================
+12. ROOM / RELAY AUDIT
+============================================================
+
+Audit the actual networking path.
+
+Requirements:
+- host creates stable room
+- clients join by room ID
+- actual Minecraft traffic travels through the intended bridge
+- no fake "connected" UI
+- heartbeat works
+- disconnect cleanup works
+- RTT is real measurement
+- LAN fallback works
+- internet-free LAN discovery works
+- TCP_NODELAY/keepalive behavior should not be regressed
+- nonblocking WebSocket send behavior should not be regressed
+
+Room creation has a theoretical GET-then-PUT race. Fix it if practical without
+breaking compatibility.
+
+============================================================
+13. OP / HOST AUTHORITY
+============================================================
+
+Audit host permission behavior.
+
+Existing groundwork:
+- LocalWorldGateData
+- HostPermissionManager
+- persisted host-granted OP UUIDs
+- scheduled sync while hosting
+- Lobby grant/revoke
+
+Required final behavior:
+- host permissions survive menu close
+- permissions survive client restart where intended
+- grant/revoke is reflected correctly
+- remote clients cannot simply claim OP through UI
+- relay/backend side should not blindly trust client-provided permission state
+- authority must be clear
+
+If a true server-side enforcement layer is required, implement it in the correct
+backend/relay architecture rather than hiding the problem in the UI.
+
+============================================================
+14. ELITE / BACKEND
+============================================================
+
+Audit WorldGate-backend and WorldGate-Elite together with the client.
+
+Check:
+- authentication
+- profile
+- Public ID
+- sessions
+- revoke
+- Elite Coins
+- purchases/store
+- wardrobe/cosmetics
+- claims
+- gifting
+- mailbox
+- history
+- friends
+- room data
+- chat
+- typing/presence
+- validation
+- authorization
+- error responses
+- rate limits where needed
+- stale data cleanup
+- secure ownership checks
+- no client-controlled price/ownership mutation
+- no secret exposure
+- no trust of arbitrary Firebase paths supplied by clients
+
+Backend commits previously included session lease work such as:
+237afd33f8665a888d6fb2c34eb6d8e5fc32f4fc
+cecc0105af9640bf1c94ab07a42ef2b1b37d3301
+f0536d56c6709ad813bd42c0f5560fefaea8ef22
+
+Inspect actual current HEAD instead of assuming these are current.
+
+============================================================
+15. DISCORD
+============================================================
+
+Discord OAuth account linking exists.
+
+Do not fake Discord proximity voice.
+
+The intended final feature is actual proximity voice that:
+- can be controlled from the WorldGate UI/keybind
+- does not require manually joining a normal Discord voice channel
+- has real voice transport
+- integrates with the appropriate Discord SDK/API
+
+However, the native Discord Social SDK is an external native dependency and must
+actually be present/integrated for real voice. Do not create fake "connected" voice
+meters.
+
+If the required native SDK package/binaries are not available in the repositories:
+- finish all other work
+- inspect build architecture
+- add the integration scaffolding/configuration that can safely be added
+- document the exact official SDK files/version/credentials still required
+- do NOT pretend voice is complete.
+
+============================================================
+16. ANIMATIONS
+============================================================
+
+Use subtle animations for:
+- loading
+- panel appearance
+- hover
+- selected navigation
+- typing indicator
+- transitions
+- async success/error states
+
+Do not over-animate gameplay.
+
+Animations must not cause crashes or major frame drops.
+
+============================================================
+17. WEBSITE — AFTER MOD + BACKEND
+============================================================
+
+ONLY start the website after the mod and backend are in a verified state.
+
+The website should be the official WorldGate companion site.
+
+Primary goals:
+- modern professional WorldGate identity
+- same design language as the in-game UI
+- dark polished visual system
+- responsive mobile + desktop
+- fast loading
+- accessible navigation
+- no fake functionality
+
+Suggested website sections:
+
+1. Home
+   - WorldGate branding
+   - short explanation
+   - download/get started CTA
+   - feature overview
+   - supported Minecraft versions
+
+2. Features
+   - Multiplayer rooms
+   - Friends
+   - Chat
+   - Elite Coins
+   - Cosmetics
+   - Claims
+   - Account security
+   - LAN/internet options
+   - Discord integration
+
+3. Download
+   - latest verified JAR
+   - version compatibility
+   - changelog
+   - checksum if practical
+   - installation instructions
+
+4. Account
+   - login/auth flow if appropriate
+   - profile
+   - Public ID
+   - sessions/security
+   - no exposure of internal UID
+
+5. Elite
+   - explain Elite Coins/store/cosmetics
+   - do not invent prices/items that do not exist in backend
+
+6. Documentation
+   - installation
+   - first room
+   - joining
+   - LAN
+   - account
+   - troubleshooting
+
+7. Status
+   - backend/relay service status if a reliable health endpoint exists
+
+8. Legal/Privacy
+   - only real policies
+   - do not invent legal claims
+
+Website must use the same backend contracts instead of duplicating business logic.
+
+============================================================
+18. WEBSITE TECHNICAL RULES
+============================================================
+
+- Inspect existing domain/repository infrastructure before creating a new stack.
+- Reuse existing project infrastructure if a website already exists.
+- If no website exists, choose a maintainable modern stack appropriate to the
+  existing deployment environment.
+- Responsive.
+- SEO basics.
+- Accessible keyboard navigation.
+- Good loading/error states.
+- No secret keys in client-side code.
+- Server-side secrets only.
+- API calls must use secure authenticated flows.
+- Do not expose Firebase admin/service-account credentials.
+- Do not put Discord client secret in browser code.
+- Do not expose Render/GitHub tokens.
+- Keep downloads linked to verified build artifacts.
+
+============================================================
+19. BUILD / CI / JAR VERIFICATION
+============================================================
+
+This is mandatory.
+
+For client:
+- inspect Gradle configuration
+- build supported Minecraft versions
+- inspect compiler output
+- fix syntax errors
+- fix mixin/config issues
+- verify resources
+- verify generated JAR exists
+- verify correct JAR is attached/generated by CI if configured
+
+For backend:
+- build/test/deploy configuration
+- inspect Render/deployment configuration
+- verify environment variable names
+- verify health endpoint
+- verify runtime logs if accessible
+- do not claim deployment success without evidence
+
+For GitHub:
+- inspect latest Actions runs
+- inspect failed jobs/logs
+- fix root cause
+- rerun/retrigger where possible
+- report exact commit SHA and actual status
+
+Never say "CI is green" unless the actual status confirms it.
+
+============================================================
+20. JAR REQUIREMENT
+============================================================
+
+The user specifically wants the top/latest build artifact to contain the JAR.
+
+After fixing CI:
+- verify the latest successful workflow actually uploads/builds the JAR
+- verify artifact naming
+- verify artifact is associated with the correct commit
+- do not merely make the workflow green while omitting the JAR
+- if multiple supported Minecraft versions produce multiple JARs, clearly identify
+  each one.
+
+============================================================
+21. WORK ORDER
+============================================================
+
+PHASE 1 — INSPECT
+-----------------
+1. Inspect current HEAD of:
+   - WorldGate
+   - WorldGate-backend
+   - WorldGate-Elite
+2. Inspect branches and recent commits.
+3. Inspect current GitHub Actions status.
+4. Inspect Gradle/build/deployment configuration.
+5. Identify actual remaining failures.
+
+PHASE 2 — BUILD HEALTH
+----------------------
+Fix compilation/syntax/configuration issues first.
+Do not hide errors by disabling features.
+
+PHASE 3 — BACKEND + SECURITY
+----------------------------
+Finish/audit backend contracts, authorization, sessions, Public ID, Elite systems,
+presence, chat, room data, and validation.
+
+PHASE 4 — MOD FUNCTIONALITY
+---------------------------
+Finish/audit multiplayer, relay, LAN, OP, skins, account, friends, chat, Elite,
+claims, Discord, localization.
+
+PHASE 5 — UI
+------------
+Finish the modern WorldGate/Essential-inspired visual system:
+- dashboard
+- Title Screen
+- Pause/ESC
+- all custom screens
+- responsive behavior
+- animations
+- localization
+- no default ugly WorldGate buttons
+
+PHASE 6 — JAR/CI
+----------------
+Build and verify every supported target.
+Verify actual JAR artifacts.
+
+PHASE 7 — WEBSITE
+-----------------
+Only after phases 1–6 are verified.
+Then build the website and connect it to the actual backend/build artifacts.
+
+============================================================
+22. HOW TO WORK
+============================================================
+
+Do not stop after finding the first error.
+
+Use this loop:
+INSPECT -> IMPLEMENT -> BUILD -> READ ERROR -> FIX -> BUILD AGAIN -> VERIFY
+
+If a change introduces another error, fix it before moving on.
+
+Before each large change, understand the existing implementation so functionality
+is preserved.
+
+Prefer editing existing architecture over replacing it.
+
+Do not create duplicate managers/services/screens when an existing implementation
+can be repaired.
+
+============================================================
+23. FINAL REPORT REQUIRED
+============================================================
+
+At the end report:
+
+CLIENT
+- branch
+- final commit SHA
+- supported versions
+- build result
+- JAR artifact name(s)
+- CI workflow/run result
+
+BACKEND
+- branch
+- final commit SHA
+- build result
+- deployment result
+- health result
+
+ELITE
+- branch
+- final commit SHA
+- integration result
+
+WEBSITE
+- repository/domain
+- final commit SHA
+- build/deploy result
+
+REMAINING EXTERNAL DEPENDENCIES
+- only genuine blockers
+- exact reason
+- exact required dependency
+- exact configuration name
+- never print secret values
+
+Also list any known limitations honestly.
+
+============================================================
+24. MOST IMPORTANT USER REQUIREMENT
+============================================================
+
+The user does NOT want:
+- repeated questions
+- fake completion
+- placeholder features
+- deleted features
+- disabled features
+- simplified UI
+- screenshots requested again
+- asset requests when code/spec is sufficient
+- secret values exposed
+- claims that something is "done" without verification
+
+The user DOES want:
+- existing project continued
+- all existing features preserved
+- modern professional WorldGate UI
+- Essential-inspired layout language without Essential branding
+- real functionality
+- animated loading
+- responsive UI
+- secure backend
+- working multiplayer
+- verified JAR
+- verified CI
+- website after the mod/backend are actually finished
+
+START FROM THE ACTUAL CURRENT REPOSITORY STATE, NOT FROM THIS FILE'S OLD COMMIT
+LIST. The commit list above is context only; current repository HEAD is authoritative.
+
+END OF MASTER HANDOFF
