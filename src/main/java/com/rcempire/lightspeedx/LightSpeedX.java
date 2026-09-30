@@ -1,12 +1,15 @@
 package com.rcempire.lightspeedx;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -24,61 +27,137 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import static com.mojang.brigadier.arguments.DoubleArgumentType.getDouble;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
+
 public final class LightSpeedX implements ModInitializer {
     public static final String MOD_ID = "lightspeedx";
-    private static final ResourceLocation ROCKET_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "rocket_core");
-    private static final ResourceKey<Item> ROCKET_KEY = ResourceKey.create(Registries.ITEM, ROCKET_ID);
-    public static final Item ROCKET_CORE = new Item(new Item.Properties().setId(ROCKET_KEY).stacksTo(1));
-    private static final Set<UUID> ACTIVE = new HashSet<>();
+    private static final ResourceLocation ROCKET_ID =
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "rocket_core");
+    private static final ResourceKey<Item> ROCKET_KEY =
+            ResourceKey.create(Registries.ITEM, ROCKET_ID);
+    public static final Item ROCKET_CORE =
+            new Item(new Item.Properties().setId(ROCKET_KEY).stacksTo(1));
+
+    private static final Map<UUID, Double> SPEEDS = new HashMap<>();
+    private static final java.util.Set<UUID> ACTIVE = new java.util.HashSet<>();
+    private static final double DEFAULT_SPEED = 6.0;
+    private static final double MAX_SPEED = 50_000_000.0;
 
     @Override
     public void onInitialize() {
         BuiltInRegistries.ITEM.register(ROCKET_ID, ROCKET_CORE);
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(e -> e.accept(ROCKET_CORE));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
+                .register(entries -> entries.accept(ROCKET_CORE));
+
         UseItemCallback.EVENT.register((player, level, hand) -> {
-            if (level.isClientSide || !player.getItemInHand(hand).is(ROCKET_CORE)) return InteractionResult.PASS;
+            if (level.isClientSide || !player.getItemInHand(hand).is(ROCKET_CORE))
+                return InteractionResult.PASS;
+
             UUID id = player.getUUID();
-            if (ACTIVE.remove(id))
+            if (ACTIVE.remove(id)) {
                 player.displayClientMessage(Component.literal("LightSpeedX: rocket disengaged"), true);
-            else {
+            } else {
                 ACTIVE.add(id);
-                player.displayClientMessage(Component.literal("LightSpeedX: rocket engaged"), true);
+                SPEEDS.putIfAbsent(id, DEFAULT_SPEED);
+                player.displayClientMessage(
+                        Component.literal("LightSpeedX: rocket engaged | speed "
+                                + formatSpeed(SPEEDS.get(id))), true);
             }
             return InteractionResult.SUCCESS;
         });
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) ->
+                dispatcher.register(literal("lightspeedx")
+                        .then(literal("speed")
+                                .then(argument("blocksPerTick",
+                                                DoubleArgumentType.doubleArg(0.01, MAX_SPEED))
+                                        .executes(context -> {
+                                            ServerPlayer player = context.getSource().getPlayerOrException();
+                                            double speed = getDouble(context, "blocksPerTick");
+                                            SPEEDS.put(player.getUUID(), speed);
+                                            player.displayClientMessage(
+                                                    Component.literal("LightSpeedX speed set to "
+                                                            + formatSpeed(speed)
+                                                            + " blocks/tick"), false);
+                                            return 1;
+                                        })))
+                        .then(literal("on").executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            SPEEDS.putIfAbsent(player.getUUID(), DEFAULT_SPEED);
+                            ACTIVE.add(player.getUUID());
+                            return 1;
+                        }))
+                        .then(literal("off").executes(context -> {
+                            ACTIVE.remove(context.getSource().getPlayerOrException().getUUID());
+                            return 1;
+                        }))
+                        .then(literal("info").executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            double speed = SPEEDS.getOrDefault(player.getUUID(), DEFAULT_SPEED);
+                            player.displayClientMessage(Component.literal(
+                                    "LightSpeedX | " + formatSpeed(speed) + " blocks/tick"), false);
+                            return 1;
+                        }))));
+
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            for (ServerPlayer player : server.getPlayerList().getPlayers())
-                if (ACTIVE.contains(player.getUUID())) tickRocket(player);
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                if (ACTIVE.contains(player.getUUID()))
+                    tickRocket(player);
+            }
         });
     }
 
     private static void tickRocket(ServerPlayer player) {
         Vec3 look = player.getLookAngle().normalize();
-        double speed = player.isSprinting() ? 42.0 : 6.0;
+        double speed = SPEEDS.getOrDefault(player.getUUID(), DEFAULT_SPEED);
         Vec3 movement = look.scale(speed);
-        if (player.isShiftKeyDown()) movement = new Vec3(movement.x, -speed, movement.z);
 
+        if (player.isShiftKeyDown())
+            movement = new Vec3(movement.x, -speed, movement.z);
+
+        // Keep entity collision cheap: query only the swept corridor around the rocket.
+        double queryDistance = Math.min(speed, 16.0);
         AABB impactBox = player.getBoundingBox()
-            .expandTowards(movement.normalize().scale(Math.min(speed, 8.0))).inflate(0.4);
+                .expandTowards(look.scale(queryDistance))
+                .inflate(0.45);
+
         for (Entity other : player.level().getEntities(player, impactBox,
-                e -> e != player && !player.isPassengerOfSameVehicle(e))) {
+                entity -> entity != player && !player.isPassengerOfSameVehicle(entity))) {
             if (!other.isSpectator()) {
-                Vec3 impulse = look.scale(Math.min(1.8, speed * 0.035));
+                Vec3 impulse = look.scale(Math.min(3.0, speed * 0.035));
                 other.push(impulse.x, Math.max(0.08, impulse.y), impulse.z);
-                movement = movement.scale(0.25);
+                movement = movement.scale(0.15);
                 break;
             }
         }
 
         player.setDeltaMovement(movement);
         player.hurtMarked = true;
-        if (speed > 6.0 && player.tickCount % 2 == 0) {
+
+        // Deliberately tiny particle budget for low-end devices.
+        if (speed > DEFAULT_SPEED && player.tickCount % 3 == 0) {
             player.serverLevel().sendParticles(
-                new BlockParticleOption(ParticleTypes.BLOCK, Blocks.IRON_BLOCK.defaultBlockState()),
-                player.getX() - look.x * 1.2, player.getY() - look.y * 1.2, player.getZ() - look.z * 1.2,
-                2, 0.12, 0.12, 0.12, 0.03);
+                    new BlockParticleOption(ParticleTypes.BLOCK, Blocks.IRON_BLOCK.defaultBlockState()),
+                    player.getX() - look.x * 1.2,
+                    player.getY() - look.y * 1.2,
+                    player.getZ() - look.z * 1.2,
+                    1, 0.08, 0.08, 0.08, 0.01);
         }
     }
 
-    public static boolean isActive(Player player) { return ACTIVE.contains(player.getUUID()); }
+    private static String formatSpeed(double value) {
+        if (value >= 1_000_000) return String.format(java.util.Locale.ROOT, "%.2fM", value);
+        if (value >= 1_000) return String.format(java.util.Locale.ROOT, "%.2fk", value);
+        return String.format(java.util.Locale.ROOT, "%.2f", value);
+    }
+
+    public static boolean isActive(Player player) {
+        return ACTIVE.contains(player.getUUID());
+    }
+
+    public static double getSpeed(Player player) {
+        return SPEEDS.getOrDefault(player.getUUID(), DEFAULT_SPEED);
+    }
 }
