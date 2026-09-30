@@ -44,6 +44,7 @@ public final class LightSpeedX implements ModInitializer {
     private static final java.util.Set<UUID> ACTIVE = new java.util.HashSet<>();
     private static final double DEFAULT_SPEED = 6.0;
     private static final double MAX_SPEED = 50_000_000.0;
+    private static final Map<UUID, Long> LAUNCH_TICKS = new HashMap<>();
 
     @Override
     public void onInitialize() {
@@ -61,6 +62,7 @@ public final class LightSpeedX implements ModInitializer {
             } else {
                 ACTIVE.add(id);
                 SPEEDS.putIfAbsent(id, DEFAULT_SPEED);
+                LAUNCH_TICKS.put(id, player.tickCount);
                 player.displayClientMessage(
                         Component.literal("LightSpeedX: rocket engaged | speed "
                                 + formatSpeed(SPEEDS.get(id))), true);
@@ -90,7 +92,9 @@ public final class LightSpeedX implements ModInitializer {
                             return 1;
                         }))
                         .then(literal("off").executes(context -> {
-                            ACTIVE.remove(context.getSource().getPlayerOrException().getUUID());
+                            UUID id = context.getSource().getPlayerOrException().getUUID();
+                            ACTIVE.remove(id);
+                            LAUNCH_TICKS.remove(id);
                             return 1;
                         }))
                         .then(literal("info").executes(context -> {
@@ -112,6 +116,9 @@ public final class LightSpeedX implements ModInitializer {
     private static void tickRocket(ServerPlayer player) {
         Vec3 look = player.getLookAngle().normalize();
         double speed = SPEEDS.getOrDefault(player.getUUID(), DEFAULT_SPEED);
+        long launchAge = player.tickCount - LAUNCH_TICKS.getOrDefault(player.getUUID(), (long) player.tickCount);
+        double ramp = Math.min(1.0, launchAge / 10.0);
+        speed *= ramp;
         Vec3 movement = look.scale(speed);
 
         if (player.isShiftKeyDown())
