@@ -8,7 +8,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -16,7 +16,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -33,8 +34,8 @@ import static net.minecraft.commands.Commands.literal;
 
 public final class LightSpeedX implements ModInitializer {
     public static final String MOD_ID = "lightspeedx";
-    private static final ResourceLocation ROCKET_ID =
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "rocket_core");
+    private static final Identifier ROCKET_ID =
+            Identifier.fromNamespaceAndPath(MOD_ID, "rocket_core");
     private static final ResourceKey<Item> ROCKET_KEY =
             ResourceKey.create(Registries.ITEM, ROCKET_ID);
     public static final Item ROCKET_CORE =
@@ -49,23 +50,23 @@ public final class LightSpeedX implements ModInitializer {
     @Override
     public void onInitialize() {
         BuiltInRegistries.ITEM.register(ROCKET_ID, ROCKET_CORE);
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
                 .register(entries -> entries.accept(ROCKET_CORE));
 
         UseItemCallback.EVENT.register((player, level, hand) -> {
-            if (level.isClientSide || !player.getItemInHand(hand).is(ROCKET_CORE))
+            if (level.isClientSide() || !player.getItemInHand(hand).is(ROCKET_CORE))
                 return InteractionResult.PASS;
 
             UUID id = player.getUUID();
             if (ACTIVE.remove(id)) {
-                player.displayClientMessage(Component.literal("LightSpeedX: rocket disengaged"), true);
+                player.sendOverlayMessage(Component.literal("LightSpeedX: rocket disengaged"));
             } else {
                 ACTIVE.add(id);
                 SPEEDS.putIfAbsent(id, DEFAULT_SPEED);
-                LAUNCH_TICKS.put(id, player.tickCount);
-                player.displayClientMessage(
+                LAUNCH_TICKS.put(id, (long) player.tickCount);
+                player.sendOverlayMessage(
                         Component.literal("LightSpeedX: rocket engaged | speed "
-                                + formatSpeed(SPEEDS.get(id))), true);
+                                + formatSpeed(SPEEDS.get(id))));
             }
             return InteractionResult.SUCCESS;
         });
@@ -79,7 +80,7 @@ public final class LightSpeedX implements ModInitializer {
                                             ServerPlayer player = context.getSource().getPlayerOrException();
                                             double speed = getDouble(context, "blocksPerTick");
                                             SPEEDS.put(player.getUUID(), speed);
-                                            player.displayClientMessage(
+                                            player.sendSystemMessage(
                                                     Component.literal("LightSpeedX speed set to "
                                                             + formatSpeed(speed)
                                                             + " blocks/tick"), false);
@@ -100,8 +101,8 @@ public final class LightSpeedX implements ModInitializer {
                         .then(literal("info").executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
                             double speed = SPEEDS.getOrDefault(player.getUUID(), DEFAULT_SPEED);
-                            player.displayClientMessage(Component.literal(
-                                    "LightSpeedX | " + formatSpeed(speed) + " blocks/tick"), false);
+                            player.sendSystemMessage(Component.literal(
+                                    "LightSpeedX | " + formatSpeed(speed) + " blocks/tick"));
                             return 1;
                         }))));
 
@@ -145,7 +146,7 @@ public final class LightSpeedX implements ModInitializer {
 
         // Deliberately tiny particle budget for low-end devices.
         if (speed > DEFAULT_SPEED && player.tickCount % 3 == 0) {
-            player.serverLevel().sendParticles(
+            ((ServerLevel) player.level()).sendParticles(
                     new BlockParticleOption(ParticleTypes.BLOCK, Blocks.IRON_BLOCK.defaultBlockState()),
                     player.getX() - look.x * 1.2,
                     player.getY() - look.y * 1.2,
