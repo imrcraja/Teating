@@ -1,43 +1,33 @@
 # LightSpeedX
 
-**By RC Empire**
+**Minecraft Java 26.1.2 + Fabric**  
+**Author / Publisher: RC Empire**
 
-Minecraft Java **26.1.2 + Fabric**.
+LightSpeedX is a lightweight high-speed rocket flight mod.
 
-## Rocket controls
+## Controls
+- Use the **LightSpeedX Rocket Core** to toggle rocket mode.
+- Look in any direction: forward, sideways and vertical flight follow the camera direction.
+- Sneak gives controlled downward travel.
+- Set your own speed with `/lightspeedx speed <blocksPerTick>`.
+- Examples: `/lightspeedx speed 0.5` for slow exploration, `/lightspeedx speed 10` for fast travel, or values above the conventional speed-of-light equivalent.
+- `/lightspeedx info` shows the current speed.
+- `/lightspeedx on` and `/lightspeedx off` toggle flight.
 
-The Rocket Core activates the flight system. Look in any direction to travel in that direction.
+## Rocket
+The rocket is visually assembled from Minecraft-style block cuboids using vanilla block textures. These are **rendered item-model geometry**, not real world blocks: terrain is never placed, broken, replaced, or modified.
 
-- Sprint: high-speed boost is controlled by the selected speed value.
-- Sneak: vertical downward travel.
-- Look up/down: vertical travel.
-- Look left/right: horizontal travel.
-- Entity collision: the rocket slows and transfers momentum to the entity.
-- World blocks are never placed, broken, or replaced by the rocket system.
+The model is deliberately compact and uses vanilla textures to keep resource and rendering overhead low.
 
-## Custom speed
-
-Every player can choose their own speed:
-
-`/lightspeedx speed 20`
-
-The value is in **blocks per tick**. The mod accepts values from 0.01 up to 50,000,000 blocks/tick, so players can explore at normal high speed or use deliberately extreme/faster-than-light-style gameplay.
-
-Useful commands:
-
-- `/lightspeedx speed <blocksPerTick>`
-- `/lightspeedx on`
-- `/lightspeedx off`
-- `/lightspeedx info`
-
-The default is 6 blocks/tick.
+## Physics
+- Camera direction controls the 3D launch vector.
+- Entity collision uses a narrow swept corridor and applies a strong slowdown/recoil effect.
+- Very high speeds are supported, including values beyond the conventional real-world speed of light expressed in Minecraft blocks/tick.
 
 ## Performance
-
-LightSpeedX intentionally keeps the hot movement loop small: it performs one swept entity query and uses a tiny particle budget rather than scanning or modifying blocks every tick. The visual rocket should remain lightweight by using a compact block-based model rather than hundreds of separate entities.
+The flight loop avoids whole-world scans. Particle output is deliberately tiny and collision queries are bounded so low-end devices do not get a huge per-tick rendering workload.
 
 ## Branding
+**LightSpeedX — by RC Empire**
 
-Author / publisher: **RC Empire**
-Mod: **LightSpeedX**
-Target: **Minecraft 26.1.2 Fabric**
+MIT License — Copyright RC Empire, 2026.

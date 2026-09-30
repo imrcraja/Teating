@@ -3,18 +3,17 @@
   "id": "lightspeedx",
   "version": "${version}",
   "name": "LightSpeedX",
-  "description": "High-speed block-inspired rocket flight for Minecraft 26.1.2 Fabric.",
+  "description": "High-speed block-built rocket flight for Minecraft 26.1.2 Fabric.",
   "authors": ["RC Empire"],
   "contributors": ["RC Empire"],
   "icon": "assets/lightspeedx/icon.png",
-  "license": "MIT",
   "environment": "*",
   "entrypoints": {
     "main": ["com.rcempire.lightspeedx.LightSpeedX"],
     "client": ["com.rcempire.lightspeedx.LightSpeedXClient"]
   },
   "depends": {
-    "fabricloader": ">=0.19.2",
+    "fabricloader": ">=0.18.4",
     "minecraft": "26.1.2",
     "java": ">=25",
     "fabric-api": ">=0.146.1+26.1.2"
