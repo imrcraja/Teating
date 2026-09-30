@@ -28,6 +28,6 @@ jobs:
         with:
           name: LightSpeedX-build
           path: |
-            build/libs/*.jar
+            LightSpeedX.jar
             build.log
           if-no-files-found: warn
