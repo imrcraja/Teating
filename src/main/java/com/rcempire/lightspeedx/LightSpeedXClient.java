@@ -5,14 +5,14 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 public final class LightSpeedXClient implements ClientModInitializer {
-    private static final ResourceLocation HUD_ID =
-            ResourceLocation.fromNamespaceAndPath(LightSpeedX.MOD_ID, "rocket_hud");
+    private static final Identifier HUD_ID =
+            Identifier.fromNamespaceAndPath(LightSpeedX.MOD_ID, "rocket_hud");
     private static ItemEntity rocketVisual;
     private static long animationTicks;
 
@@ -32,10 +32,10 @@ public final class LightSpeedXClient implements ClientModInitializer {
             ensureVisual(mc);
             updateVisual(mc, tickDelta.getGameTimeDeltaPartialTick(false));
 
-            graphics.drawString(mc.font, "LightSpeedX  •  ROCKET MODE", 8, 8, 0xFFFFFF, true);
-            graphics.drawString(mc.font,
+            graphics.text(mc.font, "LightSpeedX  •  ROCKET MODE", 8, 8, 0xFFFFFFFF, true);
+            graphics.text(mc.font,
                     "Look = direction | Sneak = down | Speed = " + formatSpeed(LightSpeedX.getSpeed(mc.player)),
-                    8, 20, 0xB8C7D9, true);
+                    8, 20, 0xFFB8C7D9, true);
         } else {
             removeVisual();
         }
