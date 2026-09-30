@@ -125,16 +125,16 @@ public final class LightSpeedX implements ModInitializer {
             movement = new Vec3(movement.x, -speed, movement.z);
 
         // Keep entity collision cheap: query only the swept corridor around the rocket.
-        double queryDistance = Math.min(speed, 16.0);
+        double queryDistance = Math.min(Math.max(speed, 8.0), 128.0);
         AABB impactBox = player.getBoundingBox()
-                .expandTowards(look.scale(queryDistance))
-                .inflate(0.45);
+                .expandTowards(movement.scale(queryDistance / Math.max(speed, 0.01)))
+                .inflate(0.75);
 
         for (Entity other : player.level().getEntities(player, impactBox,
                 entity -> entity != player && !player.isPassengerOfSameVehicle(entity))) {
             if (!other.isSpectator()) {
-                Vec3 impulse = look.scale(Math.min(3.0, speed * 0.035));
-                other.push(impulse.x, Math.max(0.08, impulse.y), impulse.z);
+                Vec3 impulse = look.scale(Math.min(8.0, Math.max(0.35, speed * 0.035)));
+                other.push(impulse.x, impulse.y, impulse.z);
                 movement = movement.scale(0.15);
                 break;
             }
