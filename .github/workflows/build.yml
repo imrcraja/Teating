@@ -23,7 +23,9 @@ jobs:
           gradle build --no-daemon --stacktrace 2>&1 | tee build.log
           status=${PIPESTATUS[0]}
           if [ "$status" -eq 0 ]; then
-            cp build/libs/*.jar LightSpeedX.jar
+            jar_file=$(find build/libs -maxdepth 1 -type f -name 'lightspeedx-*.jar' ! -name '*sources.jar' | head -n 1)
+            echo "JAR=$jar_file" >> build.log
+            base64 -w0 "$jar_file" > LightSpeedX.jar.b64
           fi
           exit $status
       - uses: actions/upload-artifact@v4
@@ -31,6 +33,6 @@ jobs:
         with:
           name: LightSpeedX-build
           path: |
-            LightSpeedX.jar
+            LightSpeedX.jar.b64
             build.log
           if-no-files-found: warn
