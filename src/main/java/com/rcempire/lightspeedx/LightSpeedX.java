@@ -14,6 +14,7 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
@@ -49,7 +50,7 @@ public final class LightSpeedX implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        BuiltInRegistries.ITEM.register(ROCKET_ID, ROCKET_CORE);
+        Registry.register(BuiltInRegistries.ITEM, ROCKET_KEY, ROCKET_CORE);
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
                 .register(entries -> entries.accept(ROCKET_CORE));
 
