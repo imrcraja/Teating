@@ -3,6 +3,7 @@ package com.rcempire.lightspeedx;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -23,14 +24,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public final class LightSpeedX {
+public final class LightSpeedX implements ModInitializer {
     public static final String MOD_ID = "lightspeedx";
     private static final ResourceLocation ROCKET_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "rocket_core");
     private static final ResourceKey<Item> ROCKET_KEY = ResourceKey.create(Registries.ITEM, ROCKET_ID);
     public static final Item ROCKET_CORE = new Item(new Item.Properties().setId(ROCKET_KEY).stacksTo(1));
     private static final Set<UUID> ACTIVE = new HashSet<>();
 
-    public static void init() {
+    @Override
+    public void onInitialize() {
         BuiltInRegistries.ITEM.register(ROCKET_ID, ROCKET_CORE);
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(e -> e.accept(ROCKET_CORE));
         UseItemCallback.EVENT.register((player, level, hand) -> {
